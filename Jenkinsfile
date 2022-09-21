@@ -25,7 +25,7 @@ pipeline{
           stage("build image"){
             steps{
                 script {
-                    gv.buildApp()
+                    gv.buildImage()
                 }
             }
     }
