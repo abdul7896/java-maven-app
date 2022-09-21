@@ -29,12 +29,12 @@ pipeline{
                 }
             }
     }
-        stage ("deploy") {
+        stage ("deploy"){
             steps {
                 script {
                     echo "deploying the application"
                 }
             }
-        })
+        }
 }
 }
