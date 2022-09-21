@@ -1,6 +1,5 @@
 pipeline{
-    agent
-        any
+    agent any
     tools {
         maven "mvn-3.8.6"
     }
@@ -30,7 +29,7 @@ pipeline{
                 }
             }
     }
-        stage ("deploy"{
+        stage ("deploy") {
             steps {
                 script {
                     echo "deploying the application"
