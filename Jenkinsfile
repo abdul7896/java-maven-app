@@ -22,7 +22,7 @@ pipeline{
                         passwordVariable: 'PASS',
                         usernameVariable: 'USER'
                         )]){
-                            sh 'docker build -t abz7896/prod-repo:jma:2.0 .'
+                            sh 'docker build -t jma:2.0 .'
                             sh "echo $PASS | docker login -u $USER --password-stdin"
                             sh 'docker push abz7896/prod-repo:jma:2.0'
                         }
