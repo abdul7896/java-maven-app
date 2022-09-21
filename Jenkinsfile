@@ -1,66 +1,41 @@
-def gv
-
-pipeline {
-
-    agent any
-
-   parameters {
-        choice(name: "VERSION", choices: ["1.1.0","1.2.0","1.3.0"], description: '')
-        booleanParam(name: "executeTests", defaultValue: true, description: '')
-   }
-    stages {
-
-        stage("init") {
-            steps {
-                script {
-                    gv = load "script.groovy"
-                }
-            }
-
-        }
-        stage("build") {
-
-            steps {
-               script {
-                gv.buildApp()
-               }
-            }
-        }
-
-        stage("test") {
-            
-            when {
-                expression {
-                    params.executeTests
-                }
-            }
-
-            steps { 
-                script {
-                    gv.testApp()
-                }
-            }
-        }
-
-        stage("deploy") {
-//             input {
-//                 message "Select the environment to be deployed"
-//                 ok "Done"
-//                 parameters {
-//                    choice(name: 'ONE', choices: ['dev','staging','prod'], description: '') 
-//                     choice(name: 'TWO', choices: ['dev','staging','prod'], description: '') 
-//                 }
-//             }
-
-            steps {
-               script {
-                env.ENV = input message: "Select the environment to deploy to", ok:"Done", parameters: [choice(name: 'ONE', choices: ['dev','staging','prod'], description: '')]
-                //env.ENVS = input message: "Select the environment to deploy to", ok:"Done", parameters: [choice(name: 'ONE', choices: ['dev','staging','prod'], description: '')]
-                gv.deployApp()
-                echo "Deploying to ${ENV}"
-                //echo "Deploying to ${ENVS}"
-               }
-            }
-        }
+pipeline{
+    agent
+        any
+    tools {
+        maven "mvn-3.8.6"
     }
+    stages{
+        stage("build jar"){
+            steps{
+                script {
+                    echo "building the application"
+                    sh "mvn package"
+                }
+            }
+        }
+
+          stage("build image"){
+            steps{
+                script {
+                    echo "building the docker image"
+                    withCredentials([usernamePassword(
+                        credentialsId: '71ef5aa5-53bc-40e9-bdf6-4cfd27c1aa7e',
+                        passwordVariable: 'PASS',
+                        usernameVariable: 'USER'
+                        )]){
+                            sh 'docker build -t abz7896/prod-repo:jma:2.0 .'
+                            sh "echo $PASS | docker login -u $USER --password-stdin"
+                            sh 'docker push abz7896/prod-repo:jma:2.0'
+                        }
+                }
+            }
+    }
+        stage ("deploy"{
+            steps {
+                script {
+                    echo "deploying the application"
+                }
+            }
+        })
+}
 }
