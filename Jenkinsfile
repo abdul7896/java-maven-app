@@ -27,10 +27,12 @@ pipeline{
             }
         }
 
-          stage("build image"){
+          stage("build and push image"){
             steps{
                 script {
                     buildImage("abz7896/prod-repo:jma-3.0")
+                    dockerLogin()
+                    dockerPush("abz7896/prod-repo:jma-3.0")
                 }
             }
     }
