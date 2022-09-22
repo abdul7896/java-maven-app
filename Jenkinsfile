@@ -30,7 +30,7 @@ pipeline{
           stage("build image"){
             steps{
                 script {
-                    buildImage()
+                    buildImage("abz7896/prod-repo:jma-3.0")
                 }
             }
     }
