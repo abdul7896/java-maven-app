@@ -12,16 +12,16 @@ pipeline{
     tools {
         maven "mvn-3.8.6"
     }
-    
+
     stages{
 
         stage {
             steps {
                 script {
                     echo "Incrementing app version ..."
-                    sh "mvn build-helper:parse-version versions:set \                            ─╯ 
+                    sh 'mvn build-helper:parse-version versions:set \ 
                         -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.nextMinorVersion}.\\\${parsedVersion.incrementalVersion} \
-                        versions:commit"
+                        versions:commit'
                     def matcher = readFile("pom.xml") =~ '<version>(.*)</version>'
                     def version = matcher[0][1]
                     env.IMAGE_NAME = "$version-$BUILD_NUMBER"
