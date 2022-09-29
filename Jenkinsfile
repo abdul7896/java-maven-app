@@ -14,8 +14,7 @@ pipeline{
     }
 
     stages{
-
-        stage {
+        stage("increment version") {
             steps {
                 script {
                     echo "Incrementing app version ..."
