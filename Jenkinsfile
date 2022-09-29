@@ -12,6 +12,9 @@ pipeline{
     tools {
         maven "mvn-3.8.6"
     }
+    environment {
+        IMAGE_NAME = 'abz7896/prod-repo:jma-3.0'
+    }
     stages{
 
         stage("init") {
@@ -34,9 +37,9 @@ pipeline{
           stage("build and push image"){
             steps{
                 script {
-                    buildImage("abz7896/prod-repo:jma-3.0")
+                    buildImage(env.IMAGE_NAME)
                     dockerLogin()
-                    dockerPush("abz7896/prod-repo:jma-3.0")
+                    dockerPush(env.IMAGE_NAME)
                 }
             }
     }
