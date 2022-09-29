@@ -46,7 +46,7 @@ pipeline{
                     passwordVariable: 'PASS',
                     usernameVariable: 'USER'
             )]) {
-                sh "docker build -t abz7896/prod-repo:$IMAGE_NAME"
+                sh "docker build -t abz7896/prod-repo:$IMAGE_NAME ."
                 sh "echo $PASS | docker login -u $USER --password-stdin"
                 sh "docker push abz7896/prod-repo:$IMAGE_NAME"
                 }
