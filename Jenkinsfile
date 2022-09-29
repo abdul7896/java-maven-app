@@ -60,5 +60,23 @@ pipeline{
                 }
             }
         }
+
+        stage("commit version update"){
+            steps {
+                script {
+                            withCredentials([usernamePassword(
+                            credentialsId: '503628bf-7dc0-4b99-aa98-8bdcbaa82818',
+                            passwordVariable: 'PASS',
+                            usernameVariable: 'USER'
+                    )])
+                    {
+                        sh "git remote set-url https://${USER}:${PASS}@github.com/abdul7896/java-maven-app.git"
+                        sh "git add ."
+                        sh 'git commit -m "ci: incremented version"'
+                        sh "git push origin HEAD:jenkinsfile-sshagent"
+                    }
+                }
+            }
+        }
 }
 }
