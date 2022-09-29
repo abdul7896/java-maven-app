@@ -12,41 +12,52 @@ pipeline{
     tools {
         maven "mvn-3.8.6"
     }
-    environment {
-        IMAGE_NAME = 'abz7896/prod-repo:jma-3.0'
-    }
+    
     stages{
 
-        stage("init") {
+        stage {
             steps {
                 script {
-                    gv = load "script.groovy"
-                }
-            }
-
-        }
-
-        stage("build jar"){
-            steps{
-                script {
-                    buildJar()
+                    echo "Incrementing app version ..."
+                    sh "mvn build-helper:parse-version versions:set \                            ─╯ 
+                        -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.nextMinorVersion}.\\\${parsedVersion.incrementalVersion} \
+                        versions:commit"
+                    def matcher = readFile("pom.xml") =~ '<version>(.*)</version>'
+                    def version = matcher[0][1]
+                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
                 }
             }
         }
 
-          stage("build and push image"){
+        stage("build app"){
             steps{
                 script {
-                    buildImage(env.IMAGE_NAME)
-                    dockerLogin()
-                    dockerPush(env.IMAGE_NAME)
+                    echo "buiding the application for branch ${BRANCH_NAME}"
+                    sh 'mvn clean package'
                 }
             }
+        }
+
+          stage("build image"){
+            steps{
+                script {
+                    echo "building the docker image ..."
+                    withCredentials([usernamePassword(
+                    credentialsId: '71ef5aa5-53bc-40e9-bdf6-4cfd27c1aa7e',
+                    passwordVariable: 'PASS',
+                    usernameVariable: 'USER'
+            )]) {
+                sh "docker build -t abz7896/prod-repo:$IMAGE_NAME"
+                sh "echo $PASS | docker login -u $USER --password-stdin"
+                sh "docker push abz7896/prod-repo:$IMAGE_NAME"
+                }
+            }
+        }
     }
         stage ("deploy"){
             steps {
                 script {
-                    gv.deployApp()
+                    echo "deploying ..."
                 }
             }
         }
